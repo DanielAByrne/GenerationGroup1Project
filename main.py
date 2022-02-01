@@ -8,9 +8,10 @@ from db import *
 # IMPORT DATA AND CREATE ORDER ID
 filepath = 'chesterfield.csv'
 
-orders_df = pd.read_csv(filepath)
+orders_df = pd.read_csv(filepath, header=None)
 orders_df.columns = ["Time_Stamp", "Location", "Customer Name", "Order", "Sum_Total", "Payment Method", "Card Number"]
 
+#%%
 first_id = get_first_order_id('transactions', 'OrderID')
 order_ids = np.linspace(first_id,first_id + len(orders_df['Time_Stamp']) - 1, len(orders_df['Time_Stamp']))
 order_ids = order_ids.tolist()
