@@ -23,7 +23,7 @@ CREATE TABLE products (
 
 CREATE TABLE transactions (
     OrderID INT NOT NULL,
-    Time_Stamp Date,
+    Time_Stamp VARCHAR(255),
     BranchID INT,
     PaymentID INT,
     Sum_Total DECIMAL(4,2),
