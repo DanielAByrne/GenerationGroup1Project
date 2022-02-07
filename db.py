@@ -12,7 +12,7 @@ port = os.environ.get('port')
 password = os.environ.get("mysql_pass")
 database = os.environ.get("mysql_db")
 
-def alchemy_query(df,table_name):
+def pandas_to_sql(df,table_name):
     msqldb_uri = f'postgresql://{user}:{password}@{host}:{port}/{database}'
     engine = create_engine(msqldb_uri)
     df.to_sql(table_name, con=engine, if_exists='append')
