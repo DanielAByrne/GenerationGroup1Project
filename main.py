@@ -12,11 +12,13 @@ orders_df = pd.read_csv(filepath, header=None)
 orders_df.columns = ["Time_Stamp", "Location", "Customer Name", "Order", "Sum_Total", "Payment Method", "Card Number"]
 
 #%%
-first_id = get_first_order_id('transactions', 'OrderID')
-order_ids = np.linspace(first_id,first_id + len(orders_df['Time_Stamp']) - 1, len(orders_df['Time_Stamp']))
-order_ids = order_ids.tolist()
-order_ids = [int(i) for i in order_ids]
+# first_id = get_first_order_id('transactions', 'OrderID')
+# order_ids = np.linspace(first_id,first_id + len(orders_df['Time_Stamp']) - 1, len(orders_df['Time_Stamp']))
+# order_ids = order_ids.tolist()
+# order_ids = [int(i) for i in order_ids]
+# Above is commented out due to implementing the below hash function which replaces above code -amina
 
+order_ids=orders_df.apply(lambda x: abs(hash(x["Time_Stamp"] + x["Customer Name"])), axis=1)
 orders_df['OrderID'] = order_ids
 orders_df.set_index('OrderID', inplace=True)
 
@@ -63,7 +65,7 @@ order_prods_prices = []
 for i in order_ids:
     
     order_prods = orders_df['Order'].iloc[i-first_id].split(',')
-    
+    # TODO will have to change "first_id" var
     for order_prod in order_prods:
         
         if order_prod.count('-') == 1:
