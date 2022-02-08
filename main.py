@@ -1,3 +1,4 @@
+#%%
 from funcs import *
 from db import *
 
@@ -20,14 +21,17 @@ orders_df = create_ids(orders_df, 'location','branchid','branchname', 'locations
 orders_df = create_ids(orders_df, 'Payment Method', 'paymentid', 'paymentmethod','payment_method')
 
 # CREATE AND POPULATE ORDER PRODUCTS DATAFRAME, UPDATE PRODUCTS TABLE
-
+#%%
 order_prods_df = create_order_prods(orders_df)
-orders_df.drop(['Order'], axis=1, inplace=True)
 
 # REORGANISE COLUMNS
 orders_df = orders_df[['orderid', 'time_stamp', 'branchid', 'paymentid', 'sum_total']]
-orders_df.set_index('orderid', inplace=True)
+order_prods_df = order_prods_df[['orderid', 'prodid', 'quantity', 'price']]
 
+orders_df.set_index('orderid', inplace=True)
+order_prods_df.set_index('orderid', inplace=True)
+
+#%%
 # ADD TO DATABASE
 pandas_to_sql(orders_df, 'transactions')
 pandas_to_sql(order_prods_df, 'order_products')

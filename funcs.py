@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from db import execute_query
 
 def create_dataframe(filepath,columns):
@@ -25,41 +26,33 @@ def create_ids(df,col_name_df,id_name,col_name_sql,table_name_sql):
     return df
 
 def create_order_prods(orders_df):
-    order_prods_df = pd.DataFrame(columns=['orderid', 'prodid', 'quantity', 'price'])
+    
+    order_prods_df = orders_df[['orderid', 'Order']]
+    order_prods_df['Order'] = order_prods_df['Order'].apply(lambda x: x.split(', '))
 
-    order_ids_prods = []
+    order_prods_df = order_prods_df.explode('Order')
+    order_prods_df['quantity'] = np.ones(len(order_prods_df['orderid'])).tolist()
+
+    order_prods_df = order_prods_df.groupby(['orderid', 'Order']).count()['quantity'].reset_index()
+    dummy_df = order_prods_df['Order'].str.rpartition(' - ') # split column in last occurrence of separator
+
+    order_prods_df['Order'] = dummy_df[0]
+    order_prods_df['price'] = dummy_df[2]
+
     order_prods_ids = []
-    order_prods_quantity = []
-    order_prods_prices = []
-
-    for i in range(len(orders_df['orderid'])):
+    count = 0
         
-        i_id = orders_df['orderid'].loc[i]
-        order_prods = orders_df['Order'].loc[i].split(',')
+    for order_prod in order_prods_df['Order'].tolist(): 
         
-        for order_prod in order_prods: #split price
-            
-            if order_prod.count('-') == 1:
-                order_prod = order_prod.split('-')
-            else:
-                order_prod = split(order_prod, '-', 2)
+        price = float(order_prods_df['price'].loc[count])
 
-            prod = order_prod[0]
-            price = float(order_prod[1])
-            
-            prod_id = get_prod_id_sql('products',prod,'prodid','prodname',price,'currentprice')
-            
-            order_ids_prods.append(i_id)
-            order_prods_ids.append(prod_id)
-            order_prods_quantity.append(1)
-            order_prods_prices.append(price)
+        prod_id = get_prod_id_sql('products',order_prod,'prodid','prodname',price,'currentprice')
+        
+        order_prods_ids.append(prod_id)
+        count += 1
 
-    order_prods_df['orderid'] = order_ids_prods
+    order_prods_df.drop(['Order'], axis=1, inplace=True)
     order_prods_df['prodid'] = order_prods_ids
-    order_prods_df['quantity'] = order_prods_quantity
-    order_prods_df['price'] = order_prods_prices
-
-    order_prods_df.set_index('orderid', inplace=True)
     
     return order_prods_df
 
@@ -85,7 +78,3 @@ def get_id_sql(table_name, branch, id_name, var_name):
 
     branch_id = branch_id_dict[0][0]
     return branch_id
-
-def split(strng, sep, pos):
-    strng = strng.split(sep)
-    return sep.join(strng[:pos]), sep.join(strng[pos:])
