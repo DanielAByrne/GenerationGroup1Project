@@ -1,7 +1,5 @@
 import os
-import pandas as pd
 from dotenv import load_dotenv
-from sqlalchemy import create_engine
 import psycopg2
 
 # Load environment variables from .env file
@@ -13,9 +11,21 @@ password = os.environ.get("mysql_pass")
 database = os.environ.get("mysql_db")
 
 def pandas_to_sql(df,table_name):
-    msqldb_uri = f'postgresql://{user}:{password}@{host}:{port}/{database}'
-    engine = create_engine(msqldb_uri)
-    df.to_sql(table_name, con=engine, if_exists='append')
+
+    # Fill in the blanks for the conn object
+    connection = psycopg2.connect(user=user, password=password, host=host, port=port, database=database)
+    cursor = connection.cursor()
+
+    # Adjust ... according to number of columns
+    np_data = df.to_numpy()
+    a = ','.join(["%s"]*len(df.columns))
+    col_names = ','.join(df.columns.tolist())
+    args_str = b','.join(cursor.mogrify(f"({a})", x) for x in tuple(map(tuple,np_data)))
+    cursor.execute(f"insert into {table_name} ({col_names}) VALUES "+args_str.decode("utf-8"))
+
+    cursor.close()
+    connection.commit()
+    connection.close()
 
 # Establish a database connection
 def execute_query(statement):

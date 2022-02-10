@@ -44,7 +44,7 @@ def create_order_prods(orders_df):
         
     for order_prod in order_prods_df['Order'].tolist(): 
         
-        price = float(order_prods_df['price'].loc[count])
+        price = float(order_prods_df.loc[count,'price'])
 
         prod_id = get_prod_id_sql('products',order_prod,'prodid','prodname',price,'currentprice')
         
