@@ -1,20 +1,20 @@
 CREATE DATABASE team1DB;
 
 CREATE TABLE locations (
-    BranchID INT NOT NULL AUTO_INCREMENT,
+    BranchID SERIAL,
     BranchName VARCHAR(255) NOT NULL,
     PRIMARY KEY (BranchID)
 );
 
 CREATE TABLE payment_method (
-    PaymentID INT NOT NULL AUTO_INCREMENT,
+    PaymentID SERIAL,
     PaymentMethod VARCHAR(255) NOT NULL,
     PRIMARY KEY (PaymentID),
     UNIQUE (PaymentID)
 );
 
 CREATE TABLE products (
-    ProdID INT NOT NULL AUTO_INCREMENT,
+    ProdID SERIAL,
     ProdName VARCHAR(255) NOT NULL,
     CurrentPrice DECIMAL(4,2),
     PRIMARY KEY (ProdID),
