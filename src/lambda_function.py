@@ -14,4 +14,5 @@ def handler(event, context):
     client = boto3.client('s3')
     s3 = boto3.resource('s3')
     s3.meta.client.download_file(bucket, key, f'/tmp/{filename}')
+    
     main_etl(filename)
