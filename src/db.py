@@ -1,14 +1,18 @@
-import os
-from dotenv import load_dotenv
 import psycopg2
+from json import loads
+import boto3
 
 # Load environment variables from .env file
-load_dotenv()
-host = os.environ.get("mysql_host")
-user = os.environ.get("mysql_user")
-port = os.environ.get('port')
-password = os.environ.get("mysql_pass")
-database = os.environ.get("mysql_db")
+
+client2 = boto3.client('ssm')
+response = client2.get_parameter(Name='team1_creds',WithDecryption=True)
+creds = loads(response['Parameter']['Value'])
+
+host = creds["host"]
+user = creds["user"]
+port = creds["port"]
+password = creds["password"]
+database = "team1_cafe"
 
 def pandas_to_sql(df,table_name):
 
@@ -18,10 +22,10 @@ def pandas_to_sql(df,table_name):
 
     # Adjust ... according to number of columns
     np_data = df.to_numpy()
-    a = ','.join(["%s"]*len(df.columns))
+    a = ','.join(["%s"]*len(df.columns)) 
     col_names = ','.join(df.columns.tolist())
     args_str = b','.join(cursor.mogrify(f"({a})", x) for x in tuple(map(tuple,np_data)))
-    cursor.execute(f"insert into {table_name} ({col_names}) VALUES "+args_str.decode("utf-8"))
+    cursor.execute(f"insert into team1_schema.{table_name} ({col_names}) VALUES "+args_str.decode("utf-8"))
 
     cursor.close()
     connection.commit()
