@@ -77,5 +77,3 @@ def get_id_sql(table_name, branch, id_name, var_name):
 
     branch_id = branch_id_dict[0][0]
     return branch_id
-
-#test2
