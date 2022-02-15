@@ -1,0 +1,33 @@
+name: Update AWS Cloudformation stack
+
+on:
+  push:
+    paths:
+    - 'src/**'
+
+jobs:
+  list-s3-buckets:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+
+    steps:
+      - name: checkout-repo
+        id: checkout-repo
+        uses: actions/checkout@v2
+
+      - name: list-dir
+        run: |
+          ls
+      - name: zip package
+        run: |
+          cd src
+          zip -r ../package.zip .   
+          cd ..
+          aws s3 cp package.zip  s3://team-1-bucket1/package.zip
+
+      - name: update stack
+        run: |
+          aws cloudformation update-stack --stack-name team1-lambda-stack --template-url https://team-1-bucket1.s3.eu-west-1.amazonaws.com/team1-lambda-template.yaml --region eu-west-1 --parameters ParameterKey=DeploymentBucket,ParameterValue=team-1-bucket1 ParameterKey=DeploymentPackageKey,ParameterValue=package.zip ParameterKey=BucketName,ParameterValue=team1-trigger-bucket --capabilities CAPABILITY_IAM
