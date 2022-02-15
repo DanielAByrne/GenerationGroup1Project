@@ -67,11 +67,16 @@ for i in order_ids:
     order_prods = orders_df['Order'].iloc[i-first_id].split(',')
     # TODO will have to change "first_id" var
     for order_prod in order_prods:
-        
+        # Checking how many hyphens in order column,, if 1, split at 1st hyphen, if 2, split at 2nd hyphen
         if order_prod.count('-') == 1:
             order_prod = order_prod.split('-')
         else:
             order_prod = split(order_prod, '-', 2)
+
+    # Alternative one-line code to remove last hyphen i.e. remove price from list 
+    # NB: This saves it to a dict: adjust as needed
+    # inp="Large Flat white - 2.45, Large Latte - 2.45, Large Flavoured latte - Hazelnut - 2.85, Regular Flavoured latte - Hazelnut - 2.55"
+    #d = dict(re.findall(r'(.*?)\s*-\s*(\d+(?:\.\d+)?),?\s*', inp))
 
         prod = order_prod[0]
         price = float(order_prod[1])
@@ -80,7 +85,7 @@ for i in order_ids:
         
         order_ids_prods.append(i)
         order_prods_ids.append(prod_id)
-        order_prods_quantity.append(1)
+        order_prods_quantity.append(1) # why is this 1?
         order_prods_prices.append(price)
 
 order_prods_df['OrderID'] = order_ids_prods
