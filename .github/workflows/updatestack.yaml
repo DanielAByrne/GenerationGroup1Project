@@ -26,8 +26,13 @@ jobs:
           cd src
           zip -r ../package.zip .   
           cd ..
-          aws s3 cp package.zip  s3://team-1-bucket1/package1.zip
+          aws s3 cp package.zip  s3://team-1-bucket1/package.zip
+          export VERSIONID=$(aws s3api list-object-versions --bucket team-1-bucket1 --prefix package.zip --query 'Versions[?IsLatest].[VersionId]' --output text)
+          echo $VERSIONID
 
-      - name: update stack
-        run: |
-          aws cloudformation update-stack --stack-name team1-lambda-stack --template-url https://team-1-bucket1.s3.eu-west-1.amazonaws.com/team1-lambda-template.yaml --region eu-west-1 --parameters ParameterKey=DeploymentBucket,ParameterValue=team-1-bucket1 ParameterKey=DeploymentPackageKey,ParameterValue=package1.zip ParameterKey=BucketName,ParameterValue=team1-trigger-bucket --capabilities CAPABILITY_IAM
+      # - name: update stack
+      #   run: |
+      #     aws cloudformation update-stack --stack-name team1-lambda-stack --template-url https://team-1-bucket1.s3.eu-west-1.amazonaws.com/team1-lambda-template.yaml --region eu-west-1 --parameters ParameterKey=DeploymentBucket,ParameterValue=team-1-bucket1 ParameterKey=DeploymentPackageKey,ParameterValue=package1.zip ParameterKey=BucketName,ParameterValue=team1-trigger-bucket --capabilities CAPABILITY_IAM
+
+
+VERSIONID=$(aws s3api list-object-versions --bucket aba-temp-020222 --prefix foo.bar | jq .Versions[0].VersionId)
