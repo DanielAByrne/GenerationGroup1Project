@@ -32,6 +32,7 @@ jobs:
 
       - name: update stack
         run: |
+          echo $VERSIONID
           aws cloudformation update-stack --stack-name team1-lambda-stack --template-url https://team-1-bucket1.s3.eu-west-1.amazonaws.com/team1-lambda-template.yaml --region eu-west-1 --parameters ParameterKey=DeploymentBucket,ParameterValue=team-1-bucket1 ParameterKey=DeploymentPackageKey,ParameterValue=package1.zip ParameterKey=BucketName,ParameterValue=team1-trigger-bucket ParameterKey=VersionID,ParameterValue=$VERSIONID --capabilities CAPABILITY_IAM
 
 
