@@ -1,5 +1,6 @@
 from funcs import *
 from db import *
+import datetime
 
 def main_etl(filepath):
 # CREATE ORDERS DATAFRAME
@@ -24,6 +25,7 @@ def main_etl(filepath):
 
     # REORGANISE COLUMNS
     orders_df = orders_df[['orderid', 'time_stamp', 'branchid', 'paymentid', 'sum_total']]
+    orders_df['time_stamp'] = orders_df['time_stamp'].apply(lambda x: datetime.datetime.strptime(x,'%d/%m/%Y %H:%M'))
     order_prods_df = order_prods_df[['orderid', 'prodid', 'quantity', 'price']]
 
     # ADD TO DATABASE
