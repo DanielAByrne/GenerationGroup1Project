@@ -1,7 +1,6 @@
 from funcs import *
 from db import *
 
-filepath = 'chesterfield.csv'
 
 def main_etl(filepath):
 # CREATE ORDERS DATAFRAME
