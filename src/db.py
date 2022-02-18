@@ -26,19 +26,18 @@ def pandas_to_sql(df,table_name, col_name, mode):
         args_str = b','.join(cursor.mogrify(f"({a})", x) for x in tuple(map(tuple,np_data)))
         
         if mode == 'add':
-            cursor.execute(f"insert into {table_name} ({col_names}) VALUES "+args_str.decode("utf-8"))
+            cursor.execute(f"insert into team1_schema.{table_name} ({col_names}) VALUES "+args_str.decode("utf-8"))
             
         elif mode == 'join':
-            cursor.execute(f"CREATE TEMP TABLE {table_name}_temp AS SELECT * FROM {table_name} LIMIT 0")
-            cursor.execute(f"INSERT INTO {table_name}_temp ({col_names}) VALUES "+args_str.decode("utf-8"))
-            cursor.execute(f"INSERT INTO {table_name} SELECT * FROM {table_name}_temp WHERE {col_name} NOT IN (SELECT {col_name} FROM {table_name})")
+            cursor.execute(f"CREATE TEMP TABLE team1_schema.{table_name}_temp AS SELECT * FROM {table_name} LIMIT 0")
+            cursor.execute(f"INSERT INTO team1_schema.{table_name}_temp ({col_names}) VALUES "+args_str.decode("utf-8"))
+            cursor.execute(f"INSERT INTO team1_schema.{table_name} SELECT * FROM team1_schema.{table_name}_temp WHERE {col_name} NOT IN (SELECT {col_name} FROM team1_schema.{table_name})")
     
     except Exception:
         print(traceback.format_exc())
-        
-    cursor.close()
-    connection.commit()
-    connection.close()
+        cursor.close()
+        connection.commit()
+        connection.close()
 
 # Establish a database connection
 def execute_query(statement):
