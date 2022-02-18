@@ -17,14 +17,9 @@ database = "team1_cafe"
 
 
 def pandas_to_sql(df,table_name, col_name, mode):
-
-    # Fill in the blanks for the conn object
-    connection = psycopg2.connect(user=user, password=password, host=host, port=port, database=database)
-    cursor = connection.cursor()
-
-    # Adjust ... according to number of columns
     try:
-        
+        connection = psycopg2.connect(user=user, password=password, host=host, port=port, database=database)
+        cursor = connection.cursor()
         np_data = df.to_numpy()
         a = ','.join(["%s"]*len(df.columns))
         col_names = ','.join(df.columns.tolist())
