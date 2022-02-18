@@ -1,15 +1,20 @@
 import os
-from dotenv import load_dotenv
 import psycopg2
 import traceback
+from json import loads
+import boto3
 
-# Load environment variables from .env file
-load_dotenv()
-host = os.environ.get("mysql_host")
-user = os.environ.get("mysql_user")
-port = os.environ.get('port')
-password = os.environ.get("mysql_pass")
-database = os.environ.get("mysql_db")
+
+client2 = boto3.client('ssm')
+response = client2.get_parameter(Name='team1_creds',WithDecryption=True)
+creds = loads(response['Parameter']['Value'])
+
+host = creds["host"]
+user = creds["user"]
+port = creds["port"]
+password = creds["password"]
+database = "team1_cafe"
+
 
 def pandas_to_sql(df,table_name, col_name, mode):
 

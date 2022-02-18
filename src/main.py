@@ -30,5 +30,3 @@ def main_etl(filepath):
     # ADD TO DATABASE
     pandas_to_sql(orders_df, 'transactions','', 'add')
     pandas_to_sql(order_prods_df, 'order_products', '', 'add')
-
-main_etl(filepath)
