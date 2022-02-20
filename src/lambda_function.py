@@ -3,6 +3,7 @@ import boto3
 import os
 from main import main_etl
 
+
 LOGGER = logging.getLogger()
 LOGGER.setLevel(logging.INFO)
 
@@ -15,4 +16,5 @@ def handler(event, context):
     s3 = boto3.resource('s3')
     s3.meta.client.download_file(bucket, key, f'/tmp/{filename}')
     
-    main_etl(filename)
+    main_etl(f'/tmp/{filename}')
+
