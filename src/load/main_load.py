@@ -2,8 +2,6 @@ import boto3
 import pandas as pd
 from db import *
 
-
-
 def main_load(filename, bucket):
     
     tables = ['locations', 'payment_method', 'products', 'transactions', 'order_products']
@@ -19,12 +17,8 @@ def main_load(filename, bucket):
         col_name = col_names[i]
         mode = modes[i]
         
-        s3.meta.client.download_file(bucket, f'{table}_{filename}', f'/tmp/{table}')
-        
-        df = create_dataframe(f'/tmp/{table}')
-        
-        pandas_to_sql(df, table, col_name, mode)
-    
+
+        s3_to_sql(table, col_name, filename, bucket, mode)
     
 def create_dataframe(filepath):
     df = pd.read_csv(filepath)
