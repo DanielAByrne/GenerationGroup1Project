@@ -23,5 +23,3 @@ def main_load(filename, bucket):
 def create_dataframe(filepath):
     df = pd.read_csv(filepath)
     return df
-
-#Test
