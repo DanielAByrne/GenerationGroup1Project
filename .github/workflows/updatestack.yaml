@@ -4,6 +4,7 @@ on:
   push:
     paths:
     - 'src/transform/**'
+    - 'src/load/**'
 
 jobs:
   update-lambda-stack:
@@ -24,6 +25,10 @@ jobs:
           zip -r ../transformpackage.zip .   
           cd ..
           aws s3 cp transformpackage.zip  s3://team-1-bucket1/transformpackage.zip
+          cd load
+          zip -r ../loadpackage.zip .
+          cd ..
+          aws s3 cp loadpackage.zip  s3://team-1-bucket1/loadpackage.zip
           export VERSIONID1=$(aws s3api list-object-versions --bucket team-1-bucket1 --prefix transformpackage.zip --query 'Versions[?IsLatest].[VersionId]' --output text)
           echo $VERSIONID1
           export VERSIONID2=$(aws s3api list-object-versions --bucket team-1-bucket1 --prefix loadpackage.zip --query 'Versions[?IsLatest].[VersionId]' --output text)
