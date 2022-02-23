@@ -1,4 +1,3 @@
-from cgi import test
 import pandas.testing # <-- for testing dataframes
 import unittest.mock as mock
 import pandas as pd
@@ -28,7 +27,10 @@ def test_download_file():
 #     return df
 #! must have above function in different file,then import to here for test below to work
 #*mock unittest func using df pd:
+
 from functest import create_dataframe 
+#change "functest" to be the lambda file > in src folder (whichever is the most recent)
+
 @mock.patch("functest.pd.read_csv") #filename which we're patching - must be a string
 def test_create_dataframe(read_csv_mock:mock.Mock):
     read_csv_mock.return_value=pd.DataFrame({"foo_id": [1, 2, 3]}) #can be anything , see below notes
