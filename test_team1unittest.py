@@ -2,84 +2,9 @@ from cgi import test
 import pandas.testing # <-- for testing dataframes
 import unittest.mock as mock
 import pandas as pd
-import moto
-import pymysql
-import hashlib
-import logging
 import boto3
 import os
 from moto import mock_s3
-
-# Example from Stack using panda's unittesting library
-# class DFTests(unittest.TestCase):
-#     """ class for running unittests """
-
-#     def setUp(self):
-#         """ Your setUp """
-#         #TEST_INPUT_DIR = 'data/'
-#         test_file_name =  'testdata.csv'
-#         headers=headers
-#         try:
-#             data = pd.read_csv(test_file_name,headers)
-#         except IOError:
-#             print('cannot open file')
-#         self.fixture = data
-
-#     def test_dataFrame_constructedAsExpected(self):
-#         """ Test that the dataframe read in equals what you expect"""
-#         foo = pd.DataFrame()
-#         assert_frame_equal(self.fixture, foo)
-
-
-# def execute_query(statement):
-#     connection = psycopg2.connect(user=user, password=password, host=host, port=port, database=database)
-#     cursor = connection.cursor()
-#     cursor.execute(statement)
-#     connection.commit()
-#     rows = cursor.fetchall()
-#     cursor.close()
-#     connection.close()
-#     return rows
-
-# # @patch
-# def test_execute_query(unittest.TestCase):
-#     connection = psycopg2.connect(user=user, password=password, host=host, port=port, database=database)
-#     cursor = connection.cursor()
-#     cursor.execute(statement)
-#     connection.commit()
-#     rows = cursor.fetchall()
-#     cursor.close()
-#     connection.close()
-#     return rows
-
-
-
-
-# from main import main_etlcl
-
-# LOGGER = logging.getLogger()
-# LOGGER.setLevel(logging.INFO)
-
-# def handler(event, context):
-#     LOGGER.info(f'Event structure: {event}')
-#     bucket = event['Records'][0]['s3']['bucket']['name']
-#     key = event['Records'][0]['s3']['object']['key']
-#     filename = os.path.basename(key)
-#     client = boto3.client('s3')
-#     s3 = boto3.resource('s3')
-#     s3.meta.client.download_file(bucket, key, f'/tmp/{filename}')
-
-# @mock.patch("")
-# def test_handler(event, context):
-#     LOGGER.info(f'Event structure: {event}')
-#     bucket = event['Records'][0]['s3']['bucket']['name']
-#     key = event['Records'][0]['s3']['object']['key']
-#     filename = os.path.basename(key)
-#     client = boto3.client('s3')
-#     s3 = boto3.resource('s3')
-#     s3.meta.client.download_file(bucket, key, f'/tmp/{filename}')
-
-
 
 #& Tests file download like our lambda
 def download_file(filepath,bucket,key):
@@ -112,6 +37,6 @@ def test_create_dataframe(read_csv_mock:mock.Mock):
     pd.testing.assert_frame_equal(results, pd.DataFrame({"bar_id": [1, 2, 3]}))
 
 
-#^ = made a new file so we cant mock test patch the entire file as pd
+#^results=create_dataframe("test.csv",["bar_id"]) = made a new file so we cant mock test patch the entire file as pd
 #* Next steps: when mocking other func,, do dummy chesterfield with 2 rows/columns
 
