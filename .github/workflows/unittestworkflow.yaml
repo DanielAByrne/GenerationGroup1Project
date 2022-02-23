@@ -8,10 +8,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
     - name: checkout-repo
-        id: checkout-repo
         uses: actions/checkout@v2
     - name: Install python
       uses: actions/setup-python@v2
