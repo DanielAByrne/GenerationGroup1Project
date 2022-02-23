@@ -3,6 +3,7 @@ import boto3
 import os
 from main import main_etl
 
+
 LOGGER = logging.getLogger()
 LOGGER.setLevel(logging.INFO)
 
