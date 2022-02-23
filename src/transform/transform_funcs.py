@@ -79,4 +79,6 @@ def pandas_to_s3(df, table_name, filename):
     transform_table = df.to_csv(index=False)
     
     s3 = boto3.resource("s3")
+
     s3.Bucket(bucket_name).put_object(Key=s3_path, Body=transform_table)
+

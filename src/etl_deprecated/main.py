@@ -2,6 +2,7 @@ from funcs import *
 from db import *
 import datetime
 
+
 def main_etl(filepath):
 # CREATE ORDERS DATAFRAME
     columns = ['time_stamp', 'branchname', 'Customer Name', 'Order', 'sum_total', 'paymentmethod', 'Card Number']
@@ -10,6 +11,14 @@ def main_etl(filepath):
 
     # CREATE ORDER IDS AND SET THEM AS THE INDEX OF THE ORDERS DATAFRAME
     orders_df = create_order_ids(orders_df)
+
+
+    
+
+    orders_df['time_stamp'] = orders_df['time_stamp'].apply(lambda x: datetime.datetime.strptime(x,'%d/%m/%Y %H:%M'))
+
+
+
     orders_df['time_stamp'] = orders_df['time_stamp'].apply(lambda x: datetime.datetime.strptime(x,'%d/%m/%Y %H:%M'))
 
     # DROP SENSITIVE INFO
@@ -29,5 +38,12 @@ def main_etl(filepath):
     order_prods_df = order_prods_df[['orderid', 'prodid', 'quantity', 'price']]
 
     # ADD TO DATABASE
+
+    pandas_to_sql(orders_df, 'transactions','', 'add')
+    pandas_to_sql(order_prods_df, 'order_products', '', 'add')
+
+    pandas_to_sql(orders_df, 'transactions','','add')
+    pandas_to_sql(order_prods_df, 'order_products','','add')
+
     pandas_to_sql(orders_df, 'transactions','','add')
     pandas_to_sql(order_prods_df, 'order_products','','add')
