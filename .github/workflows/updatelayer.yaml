@@ -2,7 +2,8 @@ name: build-lambda-layer
 
 on:
   push:
-  - 'layer/**'
+    paths:
+    - 'layer/**'
 
 jobs:
   build-lambda-layer:
