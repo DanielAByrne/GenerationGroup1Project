@@ -24,8 +24,8 @@ jobs:
           cd layer
           docker run -v "$PWD":/var/task "public.ecr.aws/sam/build-python3.8" /bin/sh -c "pip install -r requirements.txt -t python/lib/python3.8/site-packages/; exit"
           zip -r team-1-final-layer.zip python > /dev/null
-          aws s3 cp team-1-final-layer.zip  s3://team-1-bucket1/team-1-final-layer --capabilities CAPABILITY_IAM
+          aws s3 cp team-1-final-layer.zip  s3://team-1-bucket1/team-1-final-layer.zip --capabilities CAPABILITY_IAM
           aws lambda publish-layer-version --layer-name team-1-final-layer \
           --description "Team 1 final layer via CICD" \
           --zip-file fileb://team-1-final-layer.zip \
-          --compatible-runtimes python3.8
+          --compatible-runtimes python3.8 
