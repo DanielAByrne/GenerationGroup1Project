@@ -1,0 +1,169 @@
+AWSTemplateFormatVersion : 2010-09-09
+
+Parameters:
+  DeploymentBucket:
+    Type: String
+    Description: Enter the name of the S3 bucket where your deployment package is.
+  DeploymentPackageKey:
+    Type: String
+    Description: Enter the name of the S3 key of your deployment package (python code).
+  DeploymentPackageKey2:
+    Type: String
+    Description: Enter the name of the S3 key of your deployment package (python code).
+  LandingBucket:
+    Type: String
+    Description: Enter the name of S3 bucket you wish to create for landing bucket.
+  DataBucket:
+    Type: String
+    Description: Enter the name of S3 bucket you wish to create for data bucket.
+  VersionIDTransform:
+    Type: String
+    Description: The latest version ID of the deployment package in the S3 bucket
+  VersionIDLoad:
+    Type: String
+    Description: The latest version ID of the deployment package in the S3 bucket
+    
+Resources:
+  LambdaFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+              - lambda.amazonaws.com
+          Action:
+            - sts:AssumeRole
+      Path: "/"
+      PermissionsBoundary: !Sub arn:aws:iam::${AWS::AccountId}:policy/ScopePermissions
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        - arn:aws:iam::aws:policy/AmazonRedshiftFullAccess
+        - arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+      Policies:
+      - PolicyName: LambdaLogsPolicy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource: '*'
+      - PolicyName: allowSqs
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - sqs:SendMessage
+            - sqs:ReceiveMessage
+            - sqs:DeleteMessage
+            - sqs:GetQueueAttributes
+            - sqs:ChangeMessageVisibility
+            Resource: !GetAtt MyQueue.Arn
+
+  LambdaFunctionExtractTransform:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: python3.8
+      Handler: "lambda_function.handler"
+      Role: !GetAtt LambdaFunctionRole.Arn
+      Code:
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: !Ref DeploymentPackageKey
+        S3ObjectVersion: !Ref VersionIDTransform
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-0ffebdada773368d5
+        SubnetIds:
+          - subnet-094bb267969b977e2
+      Layers:
+        - !Ref Team1Layer
+
+
+  LambdaFunctionLoad:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: python3.8
+      Handler: "index.handler"
+      Role: !GetAtt LambdaFunctionRole.Arn
+      Code:
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: !Ref DeploymentPackageKey2
+        S3ObjectVersion: !Ref VersionIDLoad
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-0ffebdada773368d5
+        SubnetIds:
+          - subnet-094bb267969b977e2
+      Layers:
+        - !Ref Team1Layer
+
+  Team1Layer:
+    Type: AWS::Lambda::LayerVersion
+    Properties: 
+      LayerName: team-1-final-layer
+      Description: Team 1's layer
+      Content:
+        S3Bucket: team-1-bucket1 
+        S3Key: team-1-final-layer.zip
+      CompatibleArchitectures: 
+        - x86_64 
+      CompatibleRuntimes:
+        - python3.8 
+
+  LambdaFunctionEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: 1
+      Enabled: true
+      EventSourceArn: !GetAtt MyQueue.Arn
+      FunctionName: !GetAtt LambdaFunctionLoad.Arn
+
+  MyQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: 'Team1-etl-sqs-queue'
+      DelaySeconds: 0
+      VisibilityTimeout: 120
+
+  SampleSQSPolicy: 
+    Type: AWS::SQS::QueuePolicy
+    Properties: 
+      Queues: 
+        - !Ref MyQueue
+      PolicyDocument: 
+        Statement: 
+          - 
+            Action: 
+              - "SQS:SendMessage" 
+              - "SQS:ReceiveMessage"
+            Effect: "Allow"
+            Resource: !GetAtt MyQueue.Arn
+
+  S3BucketET:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref LandingBucket
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: s3:ObjectCreated:*
+            Function: !GetAtt LambdaFunctionExtractTransform.Arn
+
+  S3BucketPermission:
+    Type: AWS::Lambda::Permission
+    Properties: 
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref LambdaFunctionExtractTransform
+      Principal: s3.amazonaws.com
+      SourceArn: !GetAtt S3BucketET.Arn
+
+  S3BucketL:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref DataBucket
